@@ -5,6 +5,7 @@ const { addLog } = require('./logger');
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
 let bot;
+let pollingStarted = false;
 
 function formatProduct(product) {
   const stock = product.inStock ? '✅ В наличии' : '❌ Нет в наличии';
@@ -43,9 +44,7 @@ function getBot() {
       username: ctx.from?.username,
     });
 
-    await ctx.reply(
-      'Привет! Это бот с каталогом товаров. Нажмите /catalog чтобы открыть список.'
-    );
+    await ctx.reply('Привет! Нажмите /catalog чтобы открыть каталог товаров.');
   });
 
   bot.command('catalog', async (ctx) => {
@@ -78,12 +77,26 @@ function getBot() {
   });
 
   bot.catch(async (err) => {
-    await addLog('error', 'Bot error', {
-      error: err?.message || String(err),
-    });
+    await addLog('error', 'Bot error', { error: err?.message || String(err) });
   });
 
   return bot;
 }
 
-module.exports = { getBot };
+async function startBotPolling() {
+  const instance = getBot();
+  if (pollingStarted) {
+    return instance;
+  }
+
+  await instance.launch();
+  pollingStarted = true;
+  await addLog('info', 'Bot polling started');
+
+  process.once('SIGINT', () => instance.stop('SIGINT'));
+  process.once('SIGTERM', () => instance.stop('SIGTERM'));
+
+  return instance;
+}
+
+module.exports = { getBot, startBotPolling };

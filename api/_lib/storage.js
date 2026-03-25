@@ -1,32 +1,21 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
-const ROOT = process.cwd();
-const DATA_DIR = path.join(ROOT, 'data');
-const TMP_DIR = '/tmp';
+const DATA_DIR = path.join(process.cwd(), 'data');
 
-async function resolveDataFile(fileName) {
-  if (!process.env.VERCEL) {
-    return path.join(DATA_DIR, fileName);
-  }
+async function ensureDataDir() {
+  await fs.mkdir(DATA_DIR, { recursive: true });
+}
 
-  const source = path.join(DATA_DIR, fileName);
-  const target = path.join(TMP_DIR, `catalog-${fileName}`);
-
-  try {
-    await fs.access(target);
-  } catch {
-    const content = await fs.readFile(source, 'utf8');
-    await fs.writeFile(target, content, 'utf8');
-  }
-
-  return target;
+async function dataFile(fileName) {
+  await ensureDataDir();
+  return path.join(DATA_DIR, fileName);
 }
 
 async function readJson(fileName, fallback = []) {
-  const filePath = await resolveDataFile(fileName);
-  const raw = await fs.readFile(filePath, 'utf8');
+  const filePath = await dataFile(fileName);
   try {
+    const raw = await fs.readFile(filePath, 'utf8');
     return JSON.parse(raw);
   } catch {
     return fallback;
@@ -34,7 +23,7 @@ async function readJson(fileName, fallback = []) {
 }
 
 async function writeJson(fileName, value) {
-  const filePath = await resolveDataFile(fileName);
+  const filePath = await dataFile(fileName);
   await fs.writeFile(filePath, JSON.stringify(value, null, 2), 'utf8');
   return filePath;
 }
