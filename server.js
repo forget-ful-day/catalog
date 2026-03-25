@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const path = require('node:path');
 const { readJson, writeJson } = require('./api/_lib/storage');
@@ -17,6 +19,10 @@ function isAuthorized(req) {
   }
   return req.headers['x-admin-token'] === adminToken;
 }
+
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true });
+});
 
 app.get('/api/products', async (_req, res) => {
   const products = await readJson('products.json', []);

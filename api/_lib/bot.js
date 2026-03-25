@@ -3,6 +3,7 @@ const { readJson } = require('./storage');
 const { addLog } = require('./logger');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
+const ADMIN_TELEGRAM_ID = String(process.env.ADMIN_TELEGRAM_ID || '').trim();
 
 let bot;
 let pollingStarted = false;
@@ -10,6 +11,13 @@ let pollingStarted = false;
 function formatProduct(product) {
   const stock = product.inStock ? '✅ В наличии' : '❌ Нет в наличии';
   return `*${product.name}*\n${product.description}\n💸 ${product.price} ₽\n${stock}`;
+}
+
+function isAdmin(ctx) {
+  if (!ADMIN_TELEGRAM_ID) {
+    return false;
+  }
+  return String(ctx.from?.id || '') === ADMIN_TELEGRAM_ID;
 }
 
 async function sendCatalog(ctx) {
@@ -54,6 +62,19 @@ function getBot() {
     });
 
     await sendCatalog(ctx);
+  });
+
+  bot.command('admin', async (ctx) => {
+    if (!isAdmin(ctx)) {
+      await ctx.reply('Недостаточно прав.');
+      return;
+    }
+
+    const port = process.env.PORT || 3000;
+    await ctx.reply(
+      `Админка: http://localhost:${port}\n` +
+      'Если стоит ADMIN_TOKEN, отправляй его в интерфейсе при сохранении.'
+    );
   });
 
   bot.action(/view:(.+)/, async (ctx) => {
