@@ -1,10 +1,11 @@
 # Telegram Catalog Bot + Local Admin (Node.js)
 
-Простой локальный проект:
+Локальный проект:
 - Telegram-бот с каталогом товаров
 - Веб-админка для изменения товаров
+- Изменение токена бота прямо в админке
 - Логи действий
-- Хранение в JSON (`data/products.json`, `data/logs.json`)
+- Хранение в JSON (`data/*.json`)
 
 ## 1) Установка
 
@@ -12,38 +13,39 @@
 npm install
 ```
 
-## 2) Настройка env
+## 2) Быстрый старт
 
-1. Скопируйте пример:
 ```bash
 cp .env.example .env
-```
-2. Заполните `.env`:
-- `TELEGRAM_BOT_TOKEN` — токен бота
-- `ADMIN_TELEGRAM_ID` — ваш Telegram ID (для команды `/admin`)
-- `ADMIN_TOKEN` — опционально, защита сохранения товаров из веб-админки
-- `PORT` — опционально, порт (по умолчанию `3000`)
-
-## 3) Запуск
-
-```bash
 npm run dev
 ```
 
-После запуска:
-- Админка: `http://localhost:3000`
-- Health: `GET /api/health`
-- API:
-  - `GET /api/products`
-  - `POST /api/products`
-  - `GET /api/logs`
+Откройте `http://localhost:3000`.
 
-## 4) Бот
+## 3) Настройки в админке
 
-- `/start` — приветствие
-- `/catalog` — показать товары
-- `/admin` — ссылка на локальную админку (только для `ADMIN_TELEGRAM_ID`)
+В разделе **Настройки бота** можно изменить:
+- `Telegram Bot Token`
+- `Admin Telegram ID`
+- `ADMIN_TOKEN`
+
+После сохранения конфигурации бот автоматически перезапускается с новым токеном.
+
+## 4) API
+
+- `GET /api/health`
+- `GET /api/config`
+- `POST /api/config`
+- `GET /api/products`
+- `POST /api/products`
+- `GET /api/logs`
+
+## 5) JSON файлы
+
+- `data/config.json` — токен и admin-настройки
+- `data/products.json` — каталог
+- `data/logs.json` — лог
 
 ## Безопасность
 
-Не коммитьте `.env` в git. Если токен бота случайно попал в публичный чат/репозиторий — перевыпустите его через @BotFather.
+Если токен бота попадал в переписку/публичный доступ, обязательно перевыпустите его через @BotFather.
