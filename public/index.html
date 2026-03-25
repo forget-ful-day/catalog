@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Catalog Admin</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; }
+      h1, h2 { margin-bottom: 12px; }
+      table { border-collapse: collapse; width: 100%; margin-bottom: 12px; }
+      th, td { border: 1px solid #ddd; padding: 8px; }
+      input[type="text"], input[type="number"], input[type="password"] { width: 100%; box-sizing: border-box; }
+      .actions { display: flex; gap: 8px; margin-bottom: 20px; }
+      #logs { background: #111; color: #cde; padding: 12px; min-height: 220px; white-space: pre-wrap; }
+      button { cursor: pointer; }
+      .grid { display:grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 10px; margin-bottom: 10px; }
+    </style>
+  </head>
+  <body>
+    <h1>Админка каталога</h1>
+
+    <h2>Настройки бота</h2>
+    <div class="grid">
+      <div>
+        <label>Telegram Bot Token</label>
+        <input id="telegramBotToken" type="password" placeholder="Введите новый токен" />
+      </div>
+      <div>
+        <label>Admin Telegram ID</label>
+        <input id="adminTelegramId" type="text" placeholder="Например 123456789" />
+      </div>
+      <div>
+        <label>ADMIN_TOKEN</label>
+        <input id="adminToken" type="password" placeholder="Токен для защиты API" />
+      </div>
+    </div>
+    <div class="actions">
+      <button id="saveConfig">Сохранить настройки</button>
+      <span id="cfgInfo"></span>
+    </div>
+
+    <h2>Товары</h2>
+    <div class="actions">
+      <button id="addRow">Добавить товар</button>
+      <button id="save">Сохранить в JSON</button>
+      <button id="reload">Обновить</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Название</th>
+          <th>Описание</th>
+          <th>Цена</th>
+          <th>В наличии</th>
+          <th>Удалить</th>
+        </tr>
+      </thead>
+      <tbody id="productsBody"></tbody>
+    </table>
+
+    <h2>Логи</h2>
+    <button id="reloadLogs">Обновить логи</button>
+    <div id="logs"></div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
