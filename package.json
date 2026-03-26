@@ -1,0 +1,14 @@
+{
+  "name": "catalog-etsy-style",
+  "version": "1.0.0",
+  "description": "Каталог товаров на Node.js с скрытой админ-панелью",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
+  }
+}
