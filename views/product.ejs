@@ -1,0 +1,16 @@
+<%- include('partials_header') %>
+
+<main class="container product-page">
+  <a href="/" class="back-link">← Назад в каталог</a>
+  <div class="product-layout">
+    <img src="<%= product.image %>" alt="<%= product.title %>" class="product-image" />
+    <section>
+      <h1><%= product.title %></h1>
+      <p class="product-price"><%= formatRub(product.price) %></p>
+      <p class="product-description"><%= product.description %></p>
+      <a class="buy-button" href="/go/<%= product.id %>">Купить на сайте партнёра</a>
+    </section>
+  </div>
+</main>
+
+<%- include('partials_footer') %>
