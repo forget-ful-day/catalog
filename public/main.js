@@ -9,7 +9,6 @@
   let timer;
 
   logo.addEventListener('click', (event) => {
-    event.preventDefault();
     tapCount += 1;
 
     clearTimeout(timer);
@@ -18,6 +17,7 @@
     }, 1800);
 
     if (tapCount >= 5) {
+      event.preventDefault();
       tapCount = 0;
       modal.hidden = false;
     }
@@ -28,4 +28,16 @@
       modal.hidden = true;
     });
   }
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      modal.hidden = true;
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      modal.hidden = true;
+    }
+  });
 })();
