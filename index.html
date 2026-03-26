@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Генератор конфигурации</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --accent: #6366f1;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    input, textarea {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: white;
+    }
+
+    textarea { resize: vertical; }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      margin-right: 5px;
+    }
+
+    button.secondary {
+      background: #374151;
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    button.success {
+      background: var(--success);
+    }
+
+    .product {
+      border: 1px solid #374151;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .product img {
+      width: 100%;
+      max-height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+
+    pre {
+      background: #020617;
+      padding: 10px;
+      border-radius: 10px;
+      max-height: 400px;
+      overflow: auto;
+    }
+
+    .history-item {
+      padding: 8px;
+      border-bottom: 1px solid #374151;
+      cursor: pointer;
+    }
+
+    .history-item:hover {
+      background: #1f2937;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🛠 Генератор конфигурации магазина</h1>
+
+  <div class="grid">
+
+    <div class="card">
+      <h3>Добавить товар</h3>
+
+      <input id="title" placeholder="Название">
+      <textarea id="description" placeholder="Описание"></textarea>
+      <input id="price" type="number" placeholder="Цена">
+      <input id="image" placeholder="Ссылка на изображение">
+      <input id="url" placeholder="Ссылка на покупку">
+
+      <button onclick="addProduct()">Добавить</button>
+      <button class="secondary" onclick="clearForm()">Очистить</button>
+
+      <h3>Товары</h3>
+      <div id="products"></div>
+    </div>
+
+    <div class="card">
+      <h3>Конфиг</h3>
+      <button class="success" onclick="downloadJSON()">Скачать JSON</button>
+      <button class="secondary" onclick="saveHistory()">Сохранить в историю</button>
+
+      <pre id="output"></pre>
+
+      <h3>История</h3>
+      <div id="history"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let products = [];
+let idCounter = 1;
+
+function addProduct() {
+  const product = {
+    id: 'p' + idCounter++,
+    title: title.value,
+    description: description.value,
+    price: Number(price.value),
+    image: image.value,
+    purchaseUrl: url.value
+  };
+
+  products.push(product);
+  render();
+  clearForm();
+}
+
+function clearForm() {
+  title.value = '';
+  description.value = '';
+  price.value = '';
+  image.value = '';
+  url.value = '';
+}
+
+function deleteProduct(index) {
+  products.splice(index, 1);
+  render();
+}
+
+function render() {
+  const config = {
+    settings: {
+      siteTitle: "Магазин",
+      logoText: "Магазин",
+      admin: { login: "admin", password: "admin" }
+    },
+    products
+  };
+
+  output.textContent = JSON.stringify(config, null, 2);
+
+  productsDiv = document.getElementById('products');
+  productsDiv.innerHTML = '';
+
+  products.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'product';
+    div.innerHTML = `
+      <b>${p.title}</b> (₽${p.price})
+      <br>${p.description}
+      ${p.image ? `<img src="${p.image}">` : ''}
+      <br>
+      <button class="danger" onclick="deleteProduct(${i})">Удалить</button>
+    `;
+    productsDiv.appendChild(div);
+  });
+}
+
+function downloadJSON() {
+  const blob = new Blob([output.textContent], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'store.json';
+  a.click();
+}
+
+function saveHistory() {
+  const history = JSON.parse(localStorage.getItem('history') || '[]');
+  history.unshift(output.textContent);
+  localStorage.setItem('history', JSON.stringify(history.slice(0, 10)));
+  renderHistory();
+}
+
+function loadFromHistory(index) {
+  const history = JSON.parse(localStorage.getItem('history'));
+  const data = JSON.parse(history[index]);
+  products = data.products;
+  idCounter = products.length + 1;
+  render();
+}
+
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem('history') || '[]');
+  const container = document.getElementById('history');
+  container.innerHTML = '';
+
+  history.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerText = 'Конфиг #' + (i + 1);
+    div.onclick = () => loadFromHistory(i);
+    container.appendChild(div);
+  });
+}
+
+render();
+renderHistory();
+</script>
+
+</body>
+</html>
